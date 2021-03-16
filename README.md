@@ -133,11 +133,30 @@ Pillow ： Python图像处理模块
    }
    print(data)
   ```
+   # 第四章：使用Cookie模拟登录--获取电子书下载链接
+   我们可以使用Cookie模拟用户登录，进行模拟登录后才能爬取的内容
+   查找cookie方法：
+   1.浏览器的开发者工具-network-Doc-查找cookie
+   2.console中搜索document.cookie
+   ## 4.1使用Cookie爬取看看电子书下载链接-将cookie加在header里
+     ```
+     
+     ```
+   ## 4.2使用Cookie爬取看看电子书下载链接-将cookie加在request里
+     ```
+     asd
+     ```
+     
+   上述方法都需要登录后，手动复制cookie等，如何通过代码获取cookie可以通过使用selenium来实现，之后介绍。
+   # 第五章：获取JavaScript动态生成的内容-爬取今日头条
+   ## 1.如何处理JS生成的网页内容
+   在网页源码中我们看不到内容，我们能通过一下两种方法爬取所需内容：
    
+   - 使用网页相依中找到JS脚本放回的JSON数据；
+   - 使用selenium对网页进行模拟访问
    
-   
-   
-   
+   ## 2.爬取今日头条
+   网页
    
    
    
