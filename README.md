@@ -140,11 +140,48 @@ Pillow ： Python图像处理模块
    2.console中搜索document.cookie
    ## 4.1使用Cookie爬取看看电子书下载链接-将cookie加在header里
      ```
-     
+     # coding：utf-8
+      import requests
+      from bs4 import BeautifulSoup
+
+      #以下内容需要登陆后从浏览器开发者软件中手动复制（一种十分不方便的方法）
+
+      cookie ='''douban-fav-remind=1; gr_user_id=fedb1f1a-e7c9-4caa-9d8b-75f19fbfa676; __utmv=30149280.20895; bid=QARc0X_kTRs; ll="108288"; __utma=30149280.1902666466.1563262675.1611124663.1615882371.26; __utmz=30149280.1615882371.26.16.utmcsr=cn.bing.com|utmccn=(referral)|utmcmd=referral|utmcct=/; __utmc=30149280; __utmt=1; dbcl2="208954144:5lfsFmAL+hA"; ck=IqgM; ap_v=0,6.0; push_noty_num=0; push_doumail_num=0; __utmb=30149280.7.10.1615882371; _ga=GA1.3.1902666466.1563262675; _gid=GA1.3.22791438.1615882526; _pk_ref.100001.a7dd=%5B%22%22%2C%22%22%2C1615882526%2C%22https%3A%2F%2Fcn.bing.com%2F%22%5D; _pk_ses.100001.a7dd=*; __gads=ID=8aa2fbb33a579cea-229dec506cc6004e:T=1615882583:RT=1615882583:S=ALNI_MYtc9ecydcIENuDpnVjWoXRh0519g; _pk_id.100001.a7dd=447a2e5e60155dc8.1615882526.1.1615882744.1615882526.'''
+      header = {
+          'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+          'Connection':'keep-alive',
+          'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+          'Cookie':cookie
+      }
+      url = "https://read.douban.com/"
+      #请求豆瓣的URL，获取其text文本
+      webRaw = requests.get(url,headers=header)
+      webRaw.encoding = 'utf8' 
+      wbdata = webRaw.text
+      print(wbdata)
+      #对获取到的文本进行解析
+      soup = BeautifulSoup(wbdata,'lxml')
+      print(soup)
      ```
    ## 4.2使用Cookie爬取看看电子书下载链接-将cookie加在request里
      ```
-     asd
+     # coding：utf-8
+      import requests
+      from bs4 import BeautifulSoup
+
+      #以下内容需要登陆后从浏览器开发者软件中手动复制（一种十分不方便的方法）
+
+      cookie ={douban-fav-remind=1; gr_user_id=fedb1f1a-e7c9-4caa-9d8b-75f19fbfa676; __utmv=30149280.20895; bid=QARc0X_kTRs; ll="108288"; __utma=30149280.1902666466.1563262675.1611124663.1615882371.26; __utmz=30149280.1615882371.26.16.utmcsr=cn.bing.com|utmccn=(referral)|utmcmd=referral|utmcct=/; __utmc=30149280; __utmt=1; dbcl2="208954144:5lfsFmAL+hA"; ck=IqgM; ap_v=0,6.0; push_noty_num=0; push_doumail_num=0; __utmb=30149280.7.10.1615882371; _ga=GA1.3.1902666466.1563262675; _gid=GA1.3.22791438.1615882526; _pk_ref.100001.a7dd=%5B%22%22%2C%22%22%2C1615882526%2C%22https%3A%2F%2Fcn.bing.com%2F%22%5D; _pk_ses.100001.a7dd=*; __gads=ID=8aa2fbb33a579cea-229dec506cc6004e:T=1615882583:RT=1615882583:S=ALNI_MYtc9ecydcIENuDpnVjWoXRh0519g; _pk_id.100001.a7dd=447a2e5e60155dc8.1615882526.1.1615882744.1615882526.}
+     
+      url = "https://read.douban.com/"
+      #请求豆瓣的URL，获取其text文本
+      webRaw = requests.get(url,cookies=cookie)
+      webRaw.encoding = 'utf8' 
+      wbdata = webRaw.text
+      print(wbdata)
+      #对获取到的文本进行解析
+      soup = BeautifulSoup(wbdata,'lxml')
+      print(soup)
      ```
      
    上述方法都需要登录后，手动复制cookie等，如何通过代码获取cookie可以通过使用selenium来实现，之后介绍。
@@ -156,8 +193,32 @@ Pillow ： Python图像处理模块
    - 使用selenium对网页进行模拟访问
    
    ## 2.爬取今日头条
-   网页
+   网页是由JS动态生成的，JS也需要对某个 *接口* 进行调用，并根据接口返回的JSON数据再进行加载和渲染。所以我们可以找到JS调用的数据接口，从数据接口中找到网页最后呈现的数据。
    
+   ### 2.1 找到JS请求的数据接口
+   在浏览器-开发者工具中：
+   先择“网络”选线卡，发现很多响应，选择XHR（Ajax中的概念，表示XMTLHTTPrequest）
+然后我们发现少了很多链接，随便点开一个预览（preview）中有一串JSON数据。
+   
+   ## 2.请求和解析数据接口数据
+      ```
+      #coding: utf-8
+      import requests
+      import json
+
+      word = 'Mobile'
+      url = 'http://dict.qq.com/dict?q='+word
+      wbdata = requests.get(url).text
+
+      data = json.loads(wbdata)
+
+      print(data)
+      ```
+   地址不太行，找不到端口。待学习。
+   
+   # 第六章：多线程爬取智联招聘
+   
+   # 第七章：使用selenium--以抓取qq空间好友说说为例
    
    
    
