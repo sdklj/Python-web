@@ -220,14 +220,138 @@ Pillow ： Python图像处理模块
    
 # 第七章：使用selenium，模拟用户
 ## 7.1 selenium 
-Selenium是一个Web的自动化测试工具，最初是为网站自动化测试而开发的，类型像我们玩游戏用的按键精灵，可以按指定的命令自动操作，不同是Selenium 可以直接运行在浏览器上，它支持所有主流的浏览器（包括PhantomJS这些无界面的浏览器）。
+Selenium是一个Web的自动化测试工具，最初是为网站自动化测试而开发的，类型像我们玩游戏用的按键精灵，可以按指定的命令自动操作，不同是Selenium 可以直接运行在浏览器上，它支持所有主流的浏览器。
 
 Selenium 可以根据我们的指令，让浏览器自动加载页面，获取需要的数据，甚至页面截屏，或者判断网站上某些动作是否发生。
 
-Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第三方浏览器结合在一起才能使用。但是我们有时候需要让它内嵌在代码中运行，所以我们可以用一个叫 PhantomJS 的工具代替真实的浏览器。
+Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第三方浏览器结合在一起才能使用。但是我们有时候需要让它内嵌在代码中运行，所以我们可以用一个叫 Chrome 的工具代替真实的浏览器。
+## 7.2 快速入门
+Selenium 库里有个叫 WebDriver 的 API。WebDriver 有点儿像可以加载网站的浏览器，但是它也可以像 BeautifulSoup 或者其他 Selector 对象一样用来查找页面元素，与页面上的元素进行交互 (发送文本、点击等)，以及执行其他动作来运行网络爬虫。
+```
+# IPython2 测试代码
 
+# 导入 webdriver
+from selenium import webdriver
+
+# 要想调用键盘按键操作需要引入keys包
+from selenium.webdriver.common.keys import Keys
+
+# 调用环境变量指定的PhantomJS浏览器创建浏览器对象
+driver = webdriver.PhantomJS()
+
+# 如果没有在环境变量指定PhantomJS位置
+# driver = webdriver.PhantomJS(executable_path="./phantomjs"))
+
+# get方法会一直等到页面被完全加载，然后才会继续程序，通常测试会在这里选择 time.sleep(2)
+driver.get("http://www.baidu.com/")
+
+# 获取页面名为 wrapper的id标签的文本内容
+data = driver.find_element_by_id("wrapper").text
+
+# 打印数据内容
+print data
+
+# 打印页面标题 "百度一下，你就知道"
+print driver.title
+
+# 生成当前页面快照并保存
+driver.save_screenshot("baidu.png")
+
+# id="kw"是百度搜索输入框，输入字符串"长城"
+driver.find_element_by_id("kw").send_keys(u"马云")
+
+# id="su"是百度搜索按钮，click() 是模拟点击
+driver.find_element_by_id("su").click()
+
+# 获取新的页面快照
+driver.save_screenshot("马云.png")
+
+# 打印网页渲染后的源代码
+print driver.page_source
+
+# 获取当前页面Cookie
+print driver.get_cookies()
+
+# ctrl+a 全选输入框内容
+driver.find_element_by_id("kw").send_keys(Keys.CONTROL,'a')
+
+# ctrl+x 剪切输入框内容
+driver.find_element_by_id("kw").send_keys(Keys.CONTROL,'x')
+
+# 输入框重新输入内容
+driver.find_element_by_id("kw").send_keys(u"王健林")
+
+# 模拟Enter回车键
+driver.find_element_by_id("su").send_keys(Keys.RETURN)
+
+# 清除输入框内容
+driver.find_element_by_id("kw").clear()
+
+# 生成新的页面快照
+driver.save_screenshot("王健林.png")
+
+# 获取当前url
+print driver.current_url
+
+# 关闭当前页面，如果只有一个页面，会关闭浏览器
+# driver.close()
+
+# 关闭浏览器
+driver.quit()
+```
+## 7.3 页面操作
+Selenium 的 WebDriver提供了各种方法来寻找元素，假设下面有一个表单输入框：
+```
+<input type="text" name="user-name" id="passwd-id" />
    
-   
-   
-   
-  
+# 获取id标签值
+element = driver.find_element_by_id("passwd-id")
+# 获取name标签值
+element = driver.find_element_by_name("user-name")
+# 获取标签名值
+element = driver.find_elements_by_tag_name("input")
+# 也可以通过XPath来匹配
+element = driver.find_element_by_xpath("//input[@id='passwd-id']")
+```
+### 7.3.1 By ID
+```
+<div id="coolestWidgetEvah">...</div>
+```
+实现
+```
+element = driver.find_element_by_id("coolestWidgetEvah")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+element = driver.find_element(by=By.ID, value="coolestWidgetEvah")
+```
+### 7.3.2 By Class Name
+```
+<div class="cheese"><span>Cheddar</span></div><div class="cheese"><span>Gouda</span></div>
+#实现
+cheeses = driver.find_elements_by_class_name("cheese")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+cheeses = driver.find_elements(By.CLASS_NAME, "cheese")
+```
+### 7.3.3 By Tag Name
+```
+<iframe src="..."></iframe>
+```
+实现
+```
+frame = driver.find_element_by_tag_name("iframe")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+frame = driver.find_element(By.TAG_NAME, "iframe")
+```
+### 7.3.4 By Name
+```
+<input name="cheese" type="text"/>
+```
+实现
+```
+cheese = driver.find_element_by_name("cheese")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+cheese = driver.find_element(By.NAME, "cheese")
+```
