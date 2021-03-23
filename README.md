@@ -327,7 +327,9 @@ element = driver.find_element(by=By.ID, value="coolestWidgetEvah")
 ### 7.3.2 By Class Name
 ```
 <div class="cheese"><span>Cheddar</span></div><div class="cheese"><span>Gouda</span></div>
-#实现
+```
+实现
+```
 cheeses = driver.find_elements_by_class_name("cheese")
 ------------------------ or -------------------------
 from selenium.webdriver.common.by import By
@@ -354,4 +356,81 @@ cheese = driver.find_element_by_name("cheese")
 ------------------------ or -------------------------
 from selenium.webdriver.common.by import By
 cheese = driver.find_element(By.NAME, "cheese")
+```
+### 7.3.5 By Link Text
+```
+<a href="http://www.google.com/search?q=cheese">cheese</a>
+```
+实现
+```
+cheese = driver.find_element_by_link_text("cheese")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+cheese = driver.find_element(By.LINK_TEXT, "cheese")
+```
+### 7.3.6 By Partial Link Text
+```
+<a href="http://www.google.com/search?q=cheese">search for cheese</a>>
+```
+实现
+```
+cheese = driver.find_element_by_partial_link_text("cheese")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+cheese = driver.find_element(By.PARTIAL_LINK_TEXT, "cheese")
+```
+### 7.3.7 By CSS
+```
+<div id="food"><span class="dairy">milk</span><span class="dairy aged">cheese</span></div>
+```
+实现
+```
+cheese = driver.find_element_by_css_selector("#food span.dairy.aged")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+cheese = driver.find_element(By.CSS_SELECTOR, "#food span.dairy.aged")
+```
+### 7.3.8 By XPath
+```
+<input type="text" name="example" />
+<INPUT type="text" name="other" />
+```
+实现
+```
+inputs = driver.find_elements_by_xpath("//input")
+------------------------ or -------------------------
+from selenium.webdriver.common.by import By
+inputs = driver.find_elements(By.XPATH, "//input")
+```
+## 7.4 鼠标动作链
+有些时候，我们需要再页面上模拟一些鼠标操作，比如双击、右击、拖拽甚至按住不动等，我们可以通过导入 ActionChains 类来做到：
+```
+#导入 ActionChains 类
+from selenium.webdriver import ActionChains
+
+# 鼠标移动到 ac 位置
+ac = driver.find_element_by_xpath('element')
+ActionChains(driver).move_to_element(ac).perform()
+
+
+# 在 ac 位置单击
+ac = driver.find_element_by_xpath("elementA")
+ActionChains(driver).move_to_element(ac).click(ac).perform()
+
+# 在 ac 位置双击
+ac = driver.find_element_by_xpath("elementB")
+ActionChains(driver).move_to_element(ac).double_click(ac).perform()
+
+# 在 ac 位置右击
+ac = driver.find_element_by_xpath("elementC")
+ActionChains(driver).move_to_element(ac).context_click(ac).perform()
+
+# 在 ac 位置左键单击hold住
+ac = driver.find_element_by_xpath('elementF')
+ActionChains(driver).move_to_element(ac).click_and_hold(ac).perform()
+
+# 将 ac1 拖拽到 ac2 位置
+ac1 = driver.find_element_by_xpath('elementD')
+ac2 = driver.find_element_by_xpath('elementE')
+ActionChains(driver).drag_and_drop(ac1, ac2).perform()
 ```
